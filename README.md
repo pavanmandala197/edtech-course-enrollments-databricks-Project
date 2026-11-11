@@ -1,101 +1,300 @@
-🚀 Online Learning Analytics Platform | Databricks Lakehouse & Lakeflow Pipelines
+# 🚀 Online Learning Analytics Platform | Databricks Lakehouse & Lakeflow Pipelines
 
-An end-to-end data engineering pipeline and analytics solution built in Databricks using Lakeflow Spark Declarative Pipelines (Delta Live Tables) and Medallion Architecture (Bronze, Silver, Gold). This project transforms raw, messy EdTech export data into trusted, business-ready insights and executive dashboards.
+An end-to-end **Data Engineering and Analytics project** built using **Databricks, Lakeflow Spark Declarative Pipelines, Databricks SQL, and AI/BI Dashboards**.
 
-🏛️ Architecture & Data Flow
+This project demonstrates how raw and inconsistent EdTech enrollment data can be transformed into clean, reliable, and business-ready insights using the **Medallion Architecture (Bronze, Silver, and Gold)**.
 
-The project follows a robust multi-hop Medallion Architecture, ensuring progressive data refinement, auditability, and data quality enforcement across layers:
+The solution implements an automated data pipeline with data quality validation, duplicate handling, transformation, business aggregations, reconciliation checks, and interactive executive dashboards.
 
-[ Raw CSV (Unity Catalog Volume) ]
-               │
-               ▼
-   [ Bronze Table ] (Raw Ingestion & Metadata Capture)
-               │
-       ┌───────┴───────┐
-       ▼               ▼
-[ Silver Clean ]  [ Silver Rejected ] (Data Quality Enforcement)
-       │
-       ▼
-   [ Gold Tables ] (Business Aggregations & Reconciliation)
-       │
-       ▼
-[ Databricks AI/BI Dashboard ] (Executive Reporting)
+---
 
+## 📌 Project Overview
 
-📂 Repository Structure
+The Online Learning Analytics Platform analyzes synthetic course enrollment data to help business stakeholders understand learner engagement, course performance, revenue trends, and acquisition channel effectiveness.
 
-├── README.md                          # Project documentation & architecture overview
-├── pipeline_sql_code.sql              # Complete Lakeflow declarative pipeline script (Bronze -> Silver -> Gold)
-├── datasets/                          # Sample raw export file
-│   └── course_enrollments_raw.csv     # 1,283 rows of synthetic EdTech enrollment data
-└── screenshots/                       # Visual proof of pipeline DAG, data quality, and dashboard pages
+**Key Objectives:**
+- Build an end-to-end Lakehouse data engineering pipeline.
+- Implement Bronze, Silver, and Gold data layers.
+- Clean, standardize, and validate raw enrollment data.
+- Implement data quality expectations and rejected-record handling.
+- Create business-level aggregations using Databricks SQL.
+- Perform automated data reconciliation and auditing.
+- Develop executive dashboards for business reporting.
+
+---
+
+## 🏛️ Architecture & Data Flow
+
+The project follows the **Medallion Architecture**, where data passes through three progressive layers of refinement.
+
+```text
+       RAW CSV DATA
+   (Unity Catalog Volume)
+              |
+              ▼
+      BRONZE LAYER
+   Raw Data Ingestion
+   Metadata & Lineage
+              |
+              ▼
+      SILVER LAYER
+   Data Cleaning & Validation
+       /           \
+      ▼             ▼
+ Clean Records   Rejected Records
+      |             |
+      ▼             ▼
+      GOLD LAYER
+ Business Aggregations
+ Revenue & Performance
+      |
+      ▼
+ DATABRICKS AI/BI DASHBOARDS
+ Executive Reporting & Insights
+```
+
+### Architecture Layers
+
+| Layer | Purpose |
+|---|---|
+| Bronze | Raw data ingestion and metadata tracking |
+| Silver | Data cleaning, standardization, and quality validation |
+| Silver Rejected | Stores records that fail data quality rules |
+| Gold | Business aggregations and analytical summaries |
+| Dashboard | Executive reporting and business insights |
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technologies |
+|---|---|
+| Data Engineering | Databricks Lakeflow Spark Declarative Pipelines |
+| Data Processing | Databricks SQL |
+| Storage | Delta Lake |
+| Data Governance | Unity Catalog |
+| Data Ingestion | Unity Catalog Volumes |
+| Architecture | Medallion Architecture |
+| Data Quality | Declarative Expectations |
+| Data Visualization | Databricks AI/BI Dashboards |
+| Programming Language | SQL |
+
+---
+
+## 📂 Repository Structure
+
+```text
+Online-Learning-Analytics-Platform/
+│
+├── README.md
+│
+├── pipeline_sql_code.sql
+│
+├── datasets/
+│   └── course_enrollments_raw.csv
+│
+└── screenshots/
     ├── pipeline_graph.png
     ├── reconciliation_check.png
     └── dashboard_overview.png
+```
 
+---
 
-🛠️ Tech Stack & Skills Demonstrated
+## ⚙️ Pipeline Implementation
 
-Data Engineering Framework: Databricks Lakeflow Spark Declarative Pipelines / Delta Live Tables (DLT)
+### 1. Bronze Layer – Raw Data Ingestion
 
-Storage & Governance: Unity Catalog Volumes & Schemas
+**Table:** `bronze_course_enrollments`
 
-Data Transformation & Modeling: Databricks SQL, Medallion Architecture (Bronze, Silver, Gold)
+The Bronze layer ingests raw CSV enrollment records from a Unity Catalog Volume into a streaming table.
 
-Data Quality & Auditing: Declarative expectations (EXPECT ... ON VIOLATION DROP ROW), audit logging, and automated row reconciliation
+**Key Operations:**
+- Reads raw CSV files without modifying original business values.
+- Captures source file information using `source_file`.
+- Adds ingestion timestamps using `loaded_at`.
+- Maintains data lineage and traceability.
+- Preserves raw data for downstream processing.
 
-Business Intelligence: Databricks AI/BI Dashboards (KPI counters, monthly trend lines, category distribution charts)
+**Objective:** Maintain a reliable raw data foundation for further transformations.
 
-📊 Pipeline Stages & Transformation Logic
+### 2. Silver Layer – Data Cleaning & Quality Validation
 
-1. Bronze Layer (Raw Ingestion)
+The Silver layer transforms raw data into clean and standardized records.
 
-Purpose: Ingests raw CSV exports from a Unity Catalog Volume into an incremental streaming table (bronze_course_enrollments) without altering source values.
+**Key Transformations:**
 
-Enhancements: Appends source_file metadata and loaded_at timestamps for complete lineage tracking.
+**Data Deduplication**
+- Identifies and removes duplicate enrollment records.
+- Uses `SELECT DISTINCT` and enrollment-level deduplication logic.
 
-2. Silver Layer (Clean & Validate)
+**Text Standardization**
+- Uses `TRIM()` to remove unwanted whitespace.
+- Uses `INITCAP()` to standardize categorical values.
+- Uses `LOWER()` to normalize email addresses.
 
-Purpose: Standardizes data quality through four robust cleaning steps:
+**Missing Value Handling**
+- Uses `COALESCE()` to replace missing city and category values with `'Unknown'`.
+- Calculates missing `price_paid` values using `list_price - discount_amount`.
 
-Deduplication: Removes duplicate records via SELECT DISTINCT on enrollment_id.
+**Data Quality Validation**
+- Validates progress percentages between 0 and 100.
+- Identifies negative prices and invalid business metrics.
+- Uses declarative expectations to enforce data quality rules.
+- Separates invalid records into `silver_enrollments_rejected`.
 
-Text Standardization: Applies INITCAP and TRIM on categorical fields, and LOWER for email normalization.
+**Learner Progress Categorization**
 
-Imputation: Uses COALESCE to handle missing city/category values ('Unknown') and computes missing price_paid values (list_price - discount_amount).
+Uses SQL `CASE WHEN` statements to classify learners into:
 
-Data Quality Constraints: Drops and isolates records with impossible metrics (e.g., progress_pct < 0 or > 100, negative prices) into silver_enrollments_rejected.
+- Completed
+- In Progress
+- Not Started
 
-Enrichment: Categorizes learner progress dynamically using CASE WHEN into 'Completed', 'In Progress', or 'Not Started'.
+**Objective:** Ensure downstream analytics are based on consistent and validated data.
 
-3. Gold Layer (Business Aggregations & Reconciliation)
+### 3. Gold Layer – Business Aggregations
 
-Pre-calculates executive summary views to satisfy key business requirements:
+The Gold layer contains business-ready analytical tables designed for reporting and decision-making.
 
-gold_monthly_enrollments: Tracks monthly revenue, active learners, and completion rates.
+| Gold Table | Business Purpose |
+|---|---|
+| `gold_monthly_enrollments` | Monthly enrollment trends, revenue, active learners, and completion rates |
+| `gold_category_summary` | Course category performance and revenue comparisons |
+| `gold_course_summary` | Individual course performance, ratings, and hours watched |
+| `gold_channel_summary` | Acquisition channel analysis and performance |
+| `gold_data_quality` | Data quality metrics and reconciliation auditing |
 
-gold_category_summary: Compares revenue and completion performance across course categories.
+**Objective:** Convert cleaned enrollment data into meaningful business insights.
 
-gold_course_summary: Evaluates individual course ratings, hours watched, and revenue.
+---
 
-gold_channel_summary: Analyzes acquisition channels (Website, Mobile App, Referral, Social Media).
+## 📊 Executive Dashboard
 
-gold_data_quality: Automated reconciliation audit confirming $\text{Bronze Rows} = \text{Clean Rows} + \text{Rejected Rows} + \text{Duplicates Removed}$.
+Developed using **Databricks AI/BI Dashboards**, the reporting solution contains three major analytical pages.
 
-📈 Executive Dashboard Highlights
+### 1. Overview Dashboard
 
-Built using Databricks AI/BI Dashboards, the reporting layer delivers 3 core pages:
+Provides a high-level summary of platform performance.
 
-Overview: High-level KPI cards (Total Enrollments: 1,241, Revenue: ₹27.21L, Completions: 349, Hours Watched: 16,856), monthly revenue trends, and category breakdowns.
+**Key Performance Indicators (KPIs):**
 
-Courses & Channels: Deep-dive tables for top-performing courses, completion rates, and acquisition channel efficiency.
+| Metric | Result |
+|---|---:|
+| Total Enrollments | 1,241 |
+| Total Revenue | ₹27.21 L |
+| Course Completions | 349 |
+| Hours Watched | 16,856 |
 
-Data Quality & Governance: Full transparency on data hygiene, tracking email normalization impact (identifying 61 double-counted users) and 100% reconciliation verification.
+**Visualizations:**
+- Total enrollment KPI
+- Revenue KPI
+- Course completion KPI
+- Hours watched KPI
+- Monthly revenue trends
+- Course category distribution
 
-💡 Key Project Insights & Review Takeaways
+### 2. Courses & Channels Dashboard
 
-Why Medallion Architecture? Separates concerns so raw data is never lost (Bronze), data errors are safely quarantined and audited (Silver), and clean business logic is fast to query (Gold).
+Analyzes course performance and learner acquisition.
 
-The Email Normalization Impact: Fixing case sensitivity and trailing whitespaces in user emails corrected duplicate user inflation across 61 records, ensuring accurate unique learner metrics.
+**Key Insights:**
+- Top-performing courses.
+- Course-wise revenue comparison.
+- Course completion rates.
+- Acquisition channel performance.
+- Website, Mobile App, Referral, and Social Media analysis.
 
-Robust Reconciliation: Proven mathematical equality across input ingestion and final downstream tables ensures complete audit confidence for business stakeholders.
+### 3. Data Quality & Governance Dashboard
+
+Provides transparency into data cleaning and pipeline reliability.
+
+**Key Insights:**
+- Raw versus cleaned records.
+- Rejected records analysis.
+- Duplicate record tracking.
+- Email normalization impact.
+- Automated row reconciliation.
+- Data quality monitoring.
+
+---
+
+## 🔍 Key Business Insights
+
+### 1. Email Normalization Impact
+
+Standardizing email addresses using `LOWER()` and `TRIM()` helped identify duplicate user identities caused by inconsistent capitalization and trailing spaces.
+
+This analysis identified 61 potentially double-counted user records, improving the reliability of unique learner metrics.
+
+### 2. Data Quality Management
+
+Invalid records were identified and separated from clean records instead of allowing poor-quality data to affect business reporting.
+
+### 3. Revenue & Course Performance
+
+Gold-layer aggregations provide visibility into monthly revenue, course performance, category-level comparisons, and acquisition channel effectiveness.
+
+### 4. Automated Data Reconciliation
+
+Implemented reconciliation logic to validate the relationship between ingested and processed records.
+
+**Reconciliation Formula:**
+
+```text
+Bronze Records =
+Clean Records
++ Rejected Records
++ Duplicate Records Removed
+```
+
+The reconciliation check achieved 100% verification for the implemented record accounting logic.
+
+---
+
+## 🚀 Key Skills Demonstrated
+
+Through this project, I gained practical experience in:
+
+- End-to-end Data Engineering workflows.
+- Databricks Lakehouse architecture.
+- Lakeflow Spark Declarative Pipelines.
+- Medallion Architecture implementation.
+- Delta Lake and Unity Catalog.
+- SQL-based data transformations.
+- Data cleaning and preprocessing.
+- Data quality expectations and validation.
+- Duplicate detection and handling.
+- Data lineage and audit tracking.
+- Business data modeling and aggregation.
+- Executive dashboard development.
+- Data reconciliation and reporting.
+
+---
+
+## ▶️ How to Explore This Project
+
+1. Clone or download this repository.
+2. Review `pipeline_sql_code.sql` to understand the pipeline implementation.
+3. Upload `course_enrollments_raw.csv` into a Unity Catalog Volume in your Databricks workspace.
+4. Configure the required catalog, schema, and volume paths.
+5. Configure and execute the Lakeflow Spark Declarative Pipeline.
+6. Verify Bronze, Silver, Rejected, and Gold tables.
+7. Connect Gold-layer tables to Databricks AI/BI Dashboards.
+8. Explore the dashboard visualizations and reconciliation results.
+
+**Note:** Update the catalog, schema, and volume paths in the SQL script according to your Databricks environment before execution.
+
+---
+
+## 👨‍💻 Author
+
+**Pavan Mandala**
+
+Data Engineering & Analytics Intern
+
+Interested in Data Engineering, Data Analytics, SQL, Python, Databricks, and Business Intelligence.
+
+---
+
+⭐ If you find this project useful, feel free to explore the repository and share your feedback!
