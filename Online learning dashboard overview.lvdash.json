@@ -1,0 +1,1174 @@
+{
+  "datasets": [
+    {
+      "name": "ca94e507",
+      "displayName": "gold_category_summary",
+      "config": {
+        "version": "1.1",
+        "source": "edtech_catalog.learning.gold_category_summary",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "d07cff75",
+      "displayName": "gold_channel_summary",
+      "config": {
+        "version": "1.1",
+        "source": "edtech_catalog.learning.gold_channel_summary",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "6b890d54",
+      "displayName": "gold_course_summary",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT * FROM edtech_catalog.learning.gold_course_summary ORDER BY revenue DESC LIMIT 10\n",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ]
+      }
+    },
+    {
+      "name": "37194048",
+      "displayName": "gold_data_quality",
+      "config": {
+        "version": "1.1",
+        "source": "edtech_catalog.learning.gold_data_quality",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bdbd801b",
+      "displayName": "gold_monthly_enrollments",
+      "config": {
+        "version": "1.1",
+        "source": "edtech_catalog.learning.gold_monthly_enrollments",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "data_quality_problems",
+      "displayName": "Data quality problems",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT 'Rejected rows' AS problem_type, rejected_rows AS problem_count FROM edtech_catalog.learning.gold_data_quality UNION ALL SELECT 'Duplicate rows' AS problem_type, duplicate_rows AS problem_count FROM edtech_catalog.learning.gold_data_quality\n",
+        "dimensions": [
+          {
+            "name": "problem_type",
+            "expr": "source.problem_type"
+          }
+        ],
+        "measures": [
+          {
+            "name": "problem_count",
+            "expr": "SUM(source.problem_count)"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "8f9cab67",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "learners_by_status",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ca94e507",
+                  "fields": [
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "sum(completed)",
+                      "expression": "SUM(`completed`)"
+                    },
+                    {
+                      "name": "sum(in_progress)",
+                      "expression": "SUM(`in_progress`)"
+                    },
+                    {
+                      "name": "sum(not_started)",
+                      "expression": "SUM(`not_started`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Learners by Status",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "colors": [
+                  "#1E293B",
+                  "#0EA5E9",
+                  "#64748B"
+                ],
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fields": [
+                    {
+                      "fieldName": "sum(completed)",
+                      "displayName": "Completed"
+                    },
+                    {
+                      "fieldName": "sum(in_progress)",
+                      "displayName": "In Progress"
+                    },
+                    {
+                      "fieldName": "sum(not_started)",
+                      "displayName": "Not Started"
+                    }
+                  ],
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_enrollments",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bdbd801b",
+                  "fields": [
+                    {
+                      "name": "sum(enrollments)",
+                      "expression": "SUM(`enrollments`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Enrollments"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(enrollments)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_revenue",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bdbd801b",
+                  "fields": [
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Revenue (₹)"
+              },
+              "version": 2,
+              "style": {
+                "fontColor": {
+                  "dark": "#7DD3FC",
+                  "light": "#1E293B"
+                }
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(revenue)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_completions",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bdbd801b",
+                  "fields": [
+                    {
+                      "name": "sum(completions)",
+                      "expression": "SUM(`completions`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Completions"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(completions)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_hours_watched",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bdbd801b",
+                  "fields": [
+                    {
+                      "name": "sum(hours_watched)",
+                      "expression": "SUM(`hours_watched`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Hours Watched"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(hours_watched)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "revenue_by_month",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bdbd801b",
+                  "fields": [
+                    {
+                      "name": "monthly(enrollment_month)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `enrollment_month`)"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Revenue by Month",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "colors": [
+                  "#0EA5E9"
+                ]
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(enrollment_month)",
+                  "displayName": "Month",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(revenue)",
+                  "displayName": "revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "revenue_by_category",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ca94e507",
+                  "fields": [
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Revenue by Category",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "category",
+                  "axis": {
+                    "labelAngle": 45
+                  },
+                  "displayName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(revenue)",
+                  "displayName": "revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "category",
+                  "displayName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "courses_channels",
+      "displayName": "Courses & Channels",
+      "layout": [
+        {
+          "widget": {
+            "name": "enroll_revenue_by_channel",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d07cff75",
+                  "fields": [
+                    {
+                      "name": "enrollment_channel",
+                      "expression": "`enrollment_channel`"
+                    },
+                    {
+                      "name": "sum(enrollments)",
+                      "expression": "SUM(`enrollments`)"
+                    },
+                    {
+                      "name": "sum(revenue)",
+                      "expression": "SUM(`revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Enrollments & Revenue by Channel"
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "enrollment_channel",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fields": [
+                    {
+                      "fieldName": "sum(enrollments)",
+                      "displayName": "Enrollments"
+                    },
+                    {
+                      "fieldName": "sum(revenue)",
+                      "displayName": "Revenue ($)"
+                    }
+                  ],
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "top_courses_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "6b890d54",
+                  "fields": [
+                    {
+                      "name": "course_name",
+                      "expression": "`course_name`"
+                    },
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "instructor_name",
+                      "expression": "`instructor_name`"
+                    },
+                    {
+                      "name": "enrollments",
+                      "expression": "`enrollments`"
+                    },
+                    {
+                      "name": "revenue",
+                      "expression": "`revenue`"
+                    },
+                    {
+                      "name": "completion_rate_pct",
+                      "expression": "`completion_rate_pct`"
+                    },
+                    {
+                      "name": "avg_rating",
+                      "expression": "`avg_rating`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top 10 Courses by Revenue"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "course_name"
+                  },
+                  {
+                    "fieldName": "category"
+                  },
+                  {
+                    "fieldName": "instructor_name"
+                  },
+                  {
+                    "fieldName": "enrollments"
+                  },
+                  {
+                    "fieldName": "revenue"
+                  },
+                  {
+                    "fieldName": "completion_rate_pct"
+                  },
+                  {
+                    "fieldName": "avg_rating"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 7,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "completion_by_category",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ca94e507",
+                  "fields": [
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "avg(completion_rate_pct)",
+                      "expression": "AVG(`completion_rate_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Completion Rate by Category (%)"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "category",
+                  "displayName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(completion_rate_pct)",
+                  "displayName": "Avg Completion Rate (%)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "category",
+                  "displayName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 0,
+            "width": 5,
+            "height": 9
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "data_quality",
+      "displayName": "Data Quality",
+      "layout": [
+        {
+          "widget": {
+            "name": "dq_bronze_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(bronze_rows)",
+                      "expression": "MAX(`bronze_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Bronze Rows"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(bronze_rows)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_clean_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(clean_rows)",
+                      "expression": "MAX(`clean_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Clean Rows"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(clean_rows)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_rejected_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(rejected_rows)",
+                      "expression": "MAX(`rejected_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Rejected Rows"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(rejected_rows)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_duplicate_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(duplicate_rows)",
+                      "expression": "MAX(`duplicate_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Duplicate Rows"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(duplicate_rows)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_learners_before",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(learners_before_email_fix)",
+                      "expression": "MAX(`learners_before_email_fix`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Learners Before Email Fix"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(learners_before_email_fix)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_learners_after",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "max(learners_after_email_fix)",
+                      "expression": "MAX(`learners_after_email_fix`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Learners After Email Fix"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(learners_after_email_fix)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_reconciliation",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "37194048",
+                  "fields": [
+                    {
+                      "name": "reconciliation_status",
+                      "expression": "`reconciliation_status`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Reconciliation Status"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "reconciliation_status"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dq_problem_counts",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "data_quality_problems",
+                  "fields": [
+                    {
+                      "name": "problem_type",
+                      "expression": "`problem_type`"
+                    },
+                    {
+                      "name": "measure(problem_count)",
+                      "expression": "MEASURE(`problem_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Data Quality Problems"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "problem_type",
+                  "displayName": "problem_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(problem_count)",
+                  "displayName": "problem_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "problem_type",
+                  "displayName": "problem_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#F1F5F9",
+        "dark": "#0B1220"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#0F172A"
+      },
+      "widgetBorderColor": {
+        "light": "#64748B",
+        "dark": "#475569"
+      },
+      "selectionColor": {
+        "light": "#0EA5E9",
+        "dark": "#0EA5E9"
+      },
+      "visualizationColors": [
+        "#1E293B",
+        "#0EA5E9",
+        "#64748B",
+        "#38BDF8",
+        "#94A3B8",
+        "#0F172A"
+      ],
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED",
+      "fontSettings": {
+        "base": {
+          "fontFamily": "Inter"
+        },
+        "widgetTitle": {
+          "fontColor": {
+            "light": "#1E293B",
+            "dark": "#E2E8F0"
+          },
+          "fontWeight": 700
+        },
+        "fieldTitle": {
+          "fontWeight": 600
+        },
+        "fieldValue": {
+          "fontColor": {
+            "light": "#0F172A",
+            "dark": "#F1F5F9"
+          },
+          "fontWeight": 700
+        }
+      },
+      "gridLineColor": {
+        "light": "#CBD5E1",
+        "dark": "#334155"
+      }
+    },
+    "applyModeEnabled": false
+  }
+}
